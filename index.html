@@ -4,55 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assessment - اختبار التقييم العقاري</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cairo Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); min-height: 100vh; }
-        .glass-card { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body class="text-slate-800 p-3 md:p-6 flex flex-col items-center justify-start min-h-screen">
-    <main class="w-full max-w-3xl mt-10">
-        <!-- WELCOME SCREEN -->
+
+    <!-- Header & Admin Login Button -->
+    <div class="w-full max-w-3xl flex justify-between items-center mb-6 pt-2">
+        <div class="flex items-center space-x-2 space-x-reverse text-white">
+            <i class="fa-solid fa-building-user text-2xl text-indigo-400"></i>
+            <span class="text-xl font-extrabold tracking-wide">RealEstate Assessment</span>
+        </div>
+        <button onclick="showAdminModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm px-4 py-2 rounded-xl border border-indigo-400/30 transition shadow-lg font-bold">
+            <i class="fa-solid fa-user-shield ml-1"></i> دخول الأدمن
+        </button>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-3xl">
+
+        <!-- 1. WELCOME SCREEN -->
         <div id="welcome-screen" class="glass-card rounded-2xl p-6 md:p-8 shadow-2xl text-center space-y-6">
-            <h1 class="text-3xl font-extrabold text-indigo-950">Assessment</h1>
-            <p class="text-slate-600 text-sm">اختبار معلومات المشروعات العقارية والمساحات والأسعار (25 سؤال)</p>
+            <div class="space-y-2">
+                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">اختبار شامل</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-950">Assessment</h1>
+                <p class="text-slate-600 text-sm md:text-base">اختبار معلومات المشروعات العقارية والمساحات والأسعار</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-4 py-2">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center">
+                    <span class="text-2xl font-black text-indigo-600">25</span>
+                    <span class="text-xs text-slate-500 font-bold mt-1">سؤال مقالي (درجة لكل سؤال)</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center">
+                    <span class="text-2xl font-black text-amber-500">30</span>
+                    <span class="text-xs text-slate-500 font-bold mt-1">دقيقة محددة</span>
+                </div>
+            </div>
+
+            <!-- Student Form -->
             <div class="space-y-4 text-right">
                 <label class="block text-sm font-bold text-slate-700">اسم الطالب بالكامل:</label>
-                <input type="text" id="student-name" placeholder="أدخل اسمك..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 font-medium">
+                <input type="text" id="student-name" placeholder="أدخل اسمك الثلاثي..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 font-medium">
             </div>
-            <button onclick="startExam()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-lg">ابدأ الامتحان الآن</button>
+
+            <button onclick="startExam()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition transform active:scale-95 text-lg">
+                ابدأ الامتحان الآن <i class="fa-solid fa-arrow-left mr-2"></i>
+            </button>
         </div>
 
-        <!-- EXAM SCREEN -->
+        <!-- 2. EXAM SCREEN -->
         <div id="exam-screen" class="hidden glass-card rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
-            <div class="flex justify-between border-b pb-4">
-                <span id="display-student-name" class="font-bold text-slate-800"></span>
-                <span id="progress-text" class="text-xs font-bold text-indigo-600"></span>
+            <!-- Top Status Bar -->
+            <div class="flex justify-between items-center border-b pb-4">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 block">المتقدم للامتحان</span>
+                    <span id="display-student-name" class="font-bold text-slate-800"></span>
+                </div>
+                <!-- Timer -->
+                <div class="bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl text-center">
+                    <span class="text-xs font-bold text-indigo-600 block">الوقت المتبقي</span>
+                    <span id="timer" class="text-xl font-black text-indigo-700 font-mono">30:00</span>
+                </div>
             </div>
-            <h2 id="question-title" class="text-lg md:text-xl font-bold text-slate-900"></h2>
-            <textarea id="answer-input" rows="4" placeholder="اكتب الإجابة هنا..." class="w-full p-4 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500"></textarea>
-            <p id="error-msg" class="hidden text-xs text-rose-600 font-bold">يجب كتابة إجابة قبل الانتقال للسؤال التالي!</p>
-            <div class="flex justify-between">
-                <button id="prev-btn" onclick="prevQuestion()" class="hidden bg-slate-200 px-4 py-2 rounded-xl font-bold">السابق</button>
-                <button id="next-btn" onclick="nextQuestion()" class="mr-auto bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold">التالي</button>
-                <button id="submit-btn" onclick="submitExam()" class="hidden mr-auto bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold">تسليم الامتحان</button>
+
+            <!-- Progress Bar -->
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold text-slate-500">
+                    <span id="progress-text">سؤال 1 من 25</span>
+                    <span id="project-badge" class="bg-indigo-600 text-white px-2 py-0.5 rounded-md">Hydepark</span>
+                </div>
+                <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="space-y-4 py-2">
+                <div class="flex justify-between items-center">
+                    <h2 id="question-title" class="text-lg md:text-xl font-bold text-slate-900 leading-snug"></h2>
+                    <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 shrink-0 mr-2">درجة واحدة</span>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-500">إجابتك المقالية (مطلوبة للانتقال للسؤال التالي):</label>
+                    <textarea id="answer-input" rows="4" placeholder="اكتب التفاصيل والمساحة والأسعار هنا..." class="w-full p-4 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 text-base leading-relaxed"></textarea>
+                    <p id="error-msg" class="hidden text-xs text-rose-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> عذراً، يجب كتابة إجابة للسؤال قبل الانتقال للسؤال التالي!</p>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center pt-2">
+                <button id="prev-btn" onclick="prevQuestion()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2.5 rounded-xl transition text-sm">
+                    <i class="fa-solid fa-arrow-right ml-1"></i> السابق
+                </button>
+                <div class="mr-auto">
+                    <button id="next-btn" onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl shadow transition text-sm">
+                        التالي <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                    <button id="submit-btn" onclick="submitExam()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-xl shadow transition text-sm">
+                        تسليم الامتحان <i class="fa-solid fa-check mr-1"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- COMPLETED SCREEN -->
+        <!-- 3. COMPLETED SCREEN (Simple thank you message) -->
         <div id="completed-screen" class="hidden glass-card rounded-2xl p-8 shadow-2xl text-center space-y-6">
-            <h2 class="text-2xl font-bold text-slate-800">تم تسليم الامتحان بنجاح!</h2>
-            <p class="text-slate-600 text-sm">قم بانسخ تقرير الإجابات وأرسله للمسؤول:</p>
-            <textarea id="result-summary" readonly rows="6" class="w-full p-3 bg-slate-50 border rounded-lg text-xs font-mono"></textarea>
-            <button onclick="copyResults()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">نسخ التقرير</button>
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div class="space-y-2">
+                <h2 class="text-2xl font-bold text-slate-800">شكراً لك!</h2>
+                <p class="text-slate-600 text-sm">تم تسليم إجاباتك بنجاح وسيقوم المسؤول بمراجعتها وتقييمها قريباً.</p>
+            </div>
+            <button onclick="resetApp()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl transition text-sm">
+                العودة للشاشة الرئيسية
+            </button>
         </div>
+
+        <!-- 4. ADMIN DASHBOARD SCREEN -->
+        <div id="admin-screen" class="hidden glass-card rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center border-b pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-user-gear ml-2 text-indigo-600"></i>لوحة تحكم وتصحيح الأدمن</h2>
+                    <p class="text-xs text-slate-500">مراجعة الإجابات وإعطاء الدرجات (0 أو 1) لكل سؤال</p>
+                </div>
+                <button onclick="closeAdminScreen()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg">
+                    خروج <i class="fa-solid fa-right-from-bracket mr-1"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm">قائمة إجابات الطلاب المقدمة:</h3>
+                <div id="submissions-list" class="space-y-3 max-h-[500px] overflow-y-auto pl-1">
+                    <!-- JS generated submissions -->
+                </div>
+            </div>
+        </div>
+
     </main>
 
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="admin-modal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800">تسجيل دخول الأدمن</h3>
+            <p class="text-xs text-slate-500">أدخل كلمة السر الخاصة بالمشرف (الافتراضية: admin123)</p>
+            <input type="password" id="admin-password" placeholder="كلمة السر..." class="w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <div class="flex space-x-2 space-x-reverse justify-end pt-2">
+                <button onclick="closeAdminModal()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">إلغاء</button>
+                <button onclick="loginAdmin()" class="px-4 py-2 text-xs font-bold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">دخول</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC -->
     <script>
         const projects = ["Hydepark", "Sodic", "Makadi", "Gouna", "Scenes"];
         const questionsList = [];
+
         projects.forEach(project => {
             questionsList.push({ project, title: `ما هي مساحة الـ 1 Bedroom والـ Start Price؟ (${project})` });
             questionsList.push({ project, title: `ما هي مساحة الـ 2 Bedrooms والـ Start Price؟ (${project})` });
@@ -64,59 +191,213 @@
         let currentQuestionIndex = 0;
         let studentAnswers = {};
         let studentName = "";
+        let timerInterval = null;
+        let timeLeft = 30 * 60;
 
         function startExam() {
-            studentName = document.getElementById('student-name').value.trim();
-            if (!studentName) { alert("أدخل اسمك من فضلك."); return; }
+            const nameInput = document.getElementById('student-name').value.trim();
+            if (!nameInput) {
+                alert("يرجى إدخال اسمك بالكامل قبل البدء.");
+                return;
+            }
+
+            studentName = nameInput;
             document.getElementById('display-student-name').innerText = studentName;
             document.getElementById('welcome-screen').classList.add('hidden');
             document.getElementById('exam-screen').classList.remove('hidden');
+
+            startTimer();
             loadQuestion(0);
         }
 
         function loadQuestion(index) {
             currentQuestionIndex = index;
+            const q = questionsList[index];
+
             document.getElementById('error-msg').classList.add('hidden');
-            document.getElementById('question-title').innerText = questionsList[index].title;
-            document.getElementById('progress-text').innerText = `سؤال ${index + 1} من 25`;
+            document.getElementById('question-title').innerText = q.title;
+            document.getElementById('project-badge').innerText = q.project;
+            document.getElementById('progress-text').innerText = `سؤال ${index + 1} من ${questionsList.length}`;
+            document.getElementById('progress-bar').style.width = `${((index + 1) / questionsList.length) * 100}%`;
+
             document.getElementById('answer-input').value = studentAnswers[index] || "";
+
             document.getElementById('prev-btn').classList.toggle('hidden', index === 0);
-            document.getElementById('next-btn').classList.toggle('hidden', index === questionsList.length - 1);
-            document.getElementById('submit-btn').classList.toggle('hidden', index !== questionsList.length - 1);
+            if (index === questionsList.length - 1) {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('submit-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('submit-btn').classList.add('hidden');
+            }
+        }
+
+        function validateCurrentAnswer() {
+            const val = document.getElementById('answer-input').value.trim();
+            if (!val) {
+                document.getElementById('error-msg').classList.remove('hidden');
+                return false;
+            }
+            document.getElementById('error-msg').classList.add('hidden');
+            studentAnswers[currentQuestionIndex] = val;
+            return true;
         }
 
         function nextQuestion() {
-            const val = document.getElementById('answer-input').value.trim();
-            if (!val) { document.getElementById('error-msg').classList.remove('hidden'); return; }
-            studentAnswers[currentQuestionIndex] = val;
-            loadQuestion(currentQuestionIndex + 1);
+            if (!validateCurrentAnswer()) return;
+            if (currentQuestionIndex < questionsList.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            }
         }
 
         function prevQuestion() {
-            studentAnswers[currentQuestionIndex] = document.getElementById('answer-input').value.trim();
-            loadQuestion(currentQuestionIndex - 1);
+            const val = document.getElementById('answer-input').value.trim();
+            if (val) studentAnswers[currentQuestionIndex] = val;
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
         }
 
-        function submitExam() {
-            const val = document.getElementById('answer-input').value.trim();
-            if (!val) { document.getElementById('error-msg').classList.remove('hidden'); return; }
-            studentAnswers[currentQuestionIndex] = val;
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').innerText = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-            let report = `تقرير امتحان Assessment\nالاسم: ${studentName}\n------------------\n`;
-            questionsList.forEach((q, idx) => {
-                report += `س${idx + 1}: ${q.title}\nإجابة: ${studentAnswers[idx]}\n\n`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("انتهى الوقت المحدد للامتحان! سيتم تسليم الإجابات تلقائياً.");
+                    submitExam(true);
+                }
+            }, 1000);
+        }
+
+        function submitExam(isAuto = false) {
+            if (!isAuto && !validateCurrentAnswer()) return;
+            clearInterval(timerInterval);
+
+            // Save submission locally / centralized sync simulation
+            let submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
+            submissions.push({
+                studentName: studentName,
+                date: new Date().toLocaleString('ar-EG'),
+                answers: studentAnswers,
+                scores: {},
+                totalScore: 0
             });
+            localStorage.setItem('assessment_submissions', JSON.stringify(submissions));
 
-            document.getElementById('result-summary').value = report;
             document.getElementById('exam-screen').classList.add('hidden');
             document.getElementById('completed-screen').classList.remove('hidden');
         }
 
-        function copyResults() {
-            const textarea = document.getElementById('result-summary');
-            textarea.select();
-            document.execCommand('copy');
-            alert('تم نسخ التقریر بنجاح!');
+        function showAdminModal() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        function loginAdmin() {
+            const pass = document.getElementById('admin-password').value;
+            if (pass === 'admin123') {
+                closeAdminModal();
+                showAdminDashboard();
+            } else {
+                alert('كلمة السر غير صحيحة!');
+            }
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('exam-screen').classList.add('hidden');
+            document.getElementById('completed-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.remove('hidden');
+
+            renderSubmissions();
+        }
+
+        function updateScore(submissionIndex, questionIndex, scoreValue) {
+            const submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
+            if (!submissions[submissionIndex].scores) {
+                submissions[submissionIndex].scores = {};
+            }
+            
+            submissions[submissionIndex].scores[questionIndex] = parseFloat(scoreValue) || 0;
+            
+            let total = 0;
+            Object.values(submissions[submissionIndex].scores).forEach(s => total += s);
+            submissions[submissionIndex].totalScore = total;
+
+            localStorage.setItem('assessment_submissions', JSON.stringify(submissions));
+            document.getElementById(`total-score-${submissionIndex}`).innerText = `${total} / 25`;
+        }
+
+        function renderSubmissions() {
+            const container = document.getElementById('submissions-list');
+            const submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
+
+            if (submissions.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">لا توجد إجابات مقدمة حتى الآن.</div>`;
+                return;
+            }
+
+            container.innerHTML = submissions.map((sub, sIdx) => `
+                <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3 shadow-sm">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <div>
+                            <span class="font-bold text-slate-900">${sub.studentName}</span>
+                            <span class="text-xs text-slate-400 block">${sub.date}</span>
+                        </div>
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <span class="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full border border-amber-300">
+                                الدرجة: <strong id="total-score-${sIdx}">${sub.totalScore || 0} / 25</strong>
+                            </span>
+                            <button onclick="toggleSubmissionDetails(${sIdx})" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100">
+                                تصحيح وإعطاء الدرجات <i class="fa-solid fa-chevron-down mr-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="details-${sIdx}" class="hidden space-y-3 pt-2 text-xs">
+                        ${questionsList.map((q, qIdx) => {
+                            const currentScore = (sub.scores && sub.scores[qIdx] !== undefined) ? sub.scores[qIdx] : 0;
+                            return `
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-indigo-900">س${qIdx + 1}:${q.title}</span>
+                                    <div class="flex items-center space-x-1 space-x-reverse">
+                                        <label class="text-[10px] font-bold text-slate-500">الدرجة:</label>
+                                        <select onchange="updateScore(${sIdx},${qIdx}, this.value)" class="border rounded px-2 py-1 font-bold text-indigo-700">
+                                            <option value="0" ${currentScore === 0 ? 'selected' : ''}>0 (خطأ)</option>
+                                            <option value="1" ${currentScore === 1 ? 'selected' : ''}>1 (صحيح)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <p class="text-slate-800 font-medium bg-white p-2.5 rounded border border-slate-200 leading-relaxed">
+                                    ${sub.answers[qIdx] ? sub.answers[qIdx] : '<span class="text-rose-400 italic">لم يتم إجابة السؤال</span>'}
+                                </p>
+                            </div>
+                        `}).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleSubmissionDetails(idx) {
+            const el = document.getElementById(`details-${idx}`);
+            el.classList.toggle('hidden');
+        }
+
+        function closeAdminScreen() {
+            document.getElementById('admin-screen').classList.add('hidden');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        function resetApp() {
+            location.reload();
         }
     </script>
 </body>
