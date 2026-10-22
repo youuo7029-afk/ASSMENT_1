@@ -25,7 +25,7 @@
 </head>
 <body class="text-slate-800 p-3 md:p-6 flex flex-col items-center justify-start min-h-screen">
 
-    <!-- Header & Admin Login Button -->
+    <!-- Header -->
     <div class="w-full max-w-3xl flex justify-between items-center mb-6">
         <div class="flex items-center space-x-2 space-x-reverse text-white">
             <i class="fa-solid fa-building-user text-2xl text-indigo-400"></i>
@@ -104,7 +104,7 @@
                 </div>
                 
                 <div class="space-y-2">
-                    <label class="block text-xs font-bold text-slate-500">إجابتك المقالية (مطلوبة للانتفال للسؤال التالي):</label>
+                    <label class="block text-xs font-bold text-slate-500">إجابتك المقالية (مطلوبة للانتقال للسؤال التالي):</label>
                     <textarea id="answer-input" rows="4" placeholder="اكتب التفاصيل والمساحة والأسعار هنا..." class="w-full p-4 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 text-base leading-relaxed"></textarea>
                     <p id="error-msg" class="hidden text-xs text-rose-600 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> عذراً، يجب كتابة إجابة للسؤال قبل الانتقال للسؤال التالي!</p>
                 </div>
@@ -126,35 +126,46 @@
             </div>
         </div>
 
-        <!-- 3. COMPLETED / BLOCKED SCREEN -->
-        <div id="completed-screen" class="hidden glass-card rounded-2xl p-8 shadow-2xl text-center space-y-6">
-            <div id="completed-icon" class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
-                <i class="fa-solid fa-paper-plane"></i>
+        <!-- 3. COMPLETED / RESULTS SUMMARY SCREEN -->
+        <div id="completed-screen" class="hidden glass-card rounded-2xl p-6 md:p-8 shadow-2xl space-y-6 text-center">
+            <div id="completed-icon" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-check-double"></i>
             </div>
             <div class="space-y-2">
-                <h2 id="completed-title" class="text-2xl font-bold text-slate-800">تم إرسال إجاباتك بنجاح!</h2>
-                <p id="completed-desc" class="text-slate-600 text-sm">شكراً لك، تم حفظ إجابات الـ 25 سؤال وسيتم تقييمها وإعطاؤك الدرجة النهائية قريباً من الأدمن.</p>
+                <h2 id="completed-title" class="text-2xl font-bold text-slate-800">تم الانتهاء من الامتحان بنجاح!</h2>
+                <p id="completed-desc" class="text-slate-600 text-sm">يرجى نسخ تقرير إجاباتك أو إرساله للأدمن مباشرة لتصحيحه واعتماد درجتك.</p>
             </div>
-            <button onclick="resetApp()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl transition text-sm">
-                العودة للشاشة الرئيسية
-            </button>
+
+            <!-- Result Copy Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-right space-y-2">
+                <label class="block text-xs font-bold text-slate-500">تقرير إجابات الطالب (جاهز للنسخ):</label>
+                <textarea id="result-summary" readonly rows="6" class="w-full p-3 bg-white border rounded-lg text-xs font-mono text-slate-700 select-all"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button onclick="copyResults()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center">
+                    <i class="fa-solid fa-copy ml-2"></i> نسخ التقرير كـ Text
+                </button>
+                <button onclick="sendToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition text-sm flex items-center justify-center">
+                    <i class="fa-brands fa-whatsapp ml-2"></i> إرسال للأدمن عبر واتساب
+                </button>
+            </div>
         </div>
 
         <!-- 4. ADMIN DASHBOARD SCREEN -->
         <div id="admin-screen" class="hidden glass-card rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
             <div class="flex justify-between items-center border-b pb-4">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-user-gear ml-2 text-indigo-600"></i>لوحة تحكم وتصحيح الأدمن</h2>
-                    <p class="text-xs text-slate-500">مراجعة الإجابات وإعطاء الدرجات وإعادة فتح المحاولات المغلقة</p>
+                    <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-user-gear ml-2 text-indigo-600"></i>لوحة تحكم الأدمن</h2>
+                    <p class="text-xs text-slate-500">مراجعة الإجابات المحفوظة محلياً وإعطاء الدرجات</p>
                 </div>
                 <button onclick="closeAdminScreen()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg">
                     خروج <i class="fa-solid fa-right-from-bracket mr-1"></i>
                 </button>
             </div>
 
-            <!-- Student Submissions List -->
             <div class="space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm">قائمة إجابات الطلاب المقدمة:</h3>
+                <h3 class="font-bold text-slate-800 text-sm">قائمة إجابات الطلاب التي تم تقديمها من هذا الجهاز:</h3>
                 <div id="submissions-list" class="space-y-3 max-h-[500px] overflow-y-auto pl-1">
                     <!-- JS generated submissions -->
                 </div>
@@ -167,7 +178,7 @@
     <div id="admin-modal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
             <h3 class="font-bold text-lg text-slate-800">تسجيل دخول الأدمن</h3>
-            <p class="text-xs text-slate-500">أدخل كلمة السر الخاصة بالمسؤول لمراجعة وتصحيح الإجابات (الافتراضية: admin123)</p>
+            <p class="text-xs text-slate-500">أدخل كلمة السر الخاصة بالمسؤول (الافتراضية: admin123)</p>
             <input type="password" id="admin-password" placeholder="كلمة السر..." class="w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <div class="flex space-x-2 space-x-reverse justify-end pt-2">
                 <button onclick="closeAdminModal()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">إلغاء</button>
@@ -194,26 +205,12 @@
         let studentName = "";
         let timerInterval = null;
         let timeLeft = 30 * 60;
-
-        // Auto-detect leaving tab
-        window.addEventListener('beforeunload', function (e) {
-            if (studentName && timeLeft > 0 && currentQuestionIndex < questionsList.length) {
-                submitExam(true); // Submit automatically if user leaves
-            }
-        });
+        let fullReportText = "";
 
         function startExam() {
             const nameInput = document.getElementById('student-name').value.trim();
             if (!nameInput) {
                 alert("يرجى إدخال اسمك بالكامل قبل البدء.");
-                return;
-            }
-
-            const submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
-            const existing = submissions.find(s => s.studentName.toLowerCase() === nameInput.toLowerCase());
-
-            if (existing && !existing.unlocked) {
-                showBlockedScreen("عذراً، لقد قمت بتقديم هذا الامتحان سابقاً ولا يمكن إعادة المحاولة إلا بإذن الأدمن!");
                 return;
             }
 
@@ -268,7 +265,7 @@
 
         function prevQuestion() {
             const val = document.getElementById('answer-input').value.trim();
-            if (val) studentAnswers[currentQuestionIndex] = val; // save if answered
+            if (val) studentAnswers[currentQuestionIndex] = val;
             if (currentQuestionIndex > 0) {
                 loadQuestion(currentQuestionIndex - 1);
             }
@@ -285,7 +282,7 @@
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     alert("انتهى الوقت المحدد للامتحان! سيتم تسليم الإجابات تلقائياً.");
-                    submitExam();
+                    submitExam(true);
                 }
             }, 1000);
         }
@@ -294,41 +291,42 @@
             if (!isAuto && !validateCurrentAnswer()) return;
             clearInterval(timerInterval);
 
-            let submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
-            
-            // Remove previous attempt if unlocked by admin
-            submissions = submissions.filter(s => s.studentName.toLowerCase() !== studentName.toLowerCase());
+            // Generate Full Text Report
+            fullReportText = `📌 تقرير إجابات اختبار Assessment\n`;
+            fullReportText += `👤 اسم الطالب: ${studentName}\n`;
+            fullReportText += `📅 التاريخ: ${new Date().toLocaleString('ar-EG')}\n`;
+            fullReportText += `-----------------------------------\n\n`;
 
+            questionsList.forEach((q, idx) => {
+                fullReportText += `س${idx + 1}: ${q.title}\n`;
+                fullReportText += `الإجابة: ${studentAnswers[idx] || "بدون إجابة"}\n\n`;
+            });
+
+            document.getElementById('result-summary').value = fullReportText;
+
+            // Save locally as backup
+            let submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
             submissions.push({
                 studentName: studentName,
                 date: new Date().toLocaleString('ar-EG'),
-                answers: studentAnswers,
-                scores: {},
-                totalScore: 0,
-                unlocked: false
+                answers: studentAnswers
             });
-
             localStorage.setItem('assessment_submissions', JSON.stringify(submissions));
 
             document.getElementById('exam-screen').classList.add('hidden');
             document.getElementById('completed-screen').classList.remove('hidden');
         }
 
-        function showBlockedScreen(msg) {
-            document.getElementById('welcome-screen').classList.add('hidden');
-            document.getElementById('completed-screen').classList.remove('hidden');
-            document.getElementById('completed-icon').className = "w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-3xl";
-            document.getElementById('completed-icon').innerHTML = '<i class="fa-solid fa-lock"></i>';
-            document.getElementById('completed-title').innerText = "تم إغلاق الامتحان";
-            document.getElementById('completed-desc').innerText = msg;
+        function copyResults() {
+            const textarea = document.getElementById('result-summary');
+            textarea.select();
+            document.execCommand('copy');
+            alert('تم نسخ تقرير الإجابات بنجاح! يمكنك الآن لصقه وإرساله للمسؤول.');
         }
 
-        function unlockStudent(submissionIndex) {
-            const submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
-            submissions[submissionIndex].unlocked = true;
-            localStorage.setItem('assessment_submissions', JSON.stringify(submissions));
-            alert(`تم فتح الامتحان بنجاح للطالب: ${submissions[submissionIndex].studentName}. يستطيع الآن الدخول ويمتحن مجدداً!`);
-            renderSubmissions();
+        function sendToWhatsApp() {
+            const encodedText = encodeURIComponent(fullReportText);
+            window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
         }
 
         function showAdminModal() {
@@ -358,87 +356,30 @@
             renderSubmissions();
         }
 
-        function updateScore(submissionIndex, questionIndex, scoreValue) {
-            const submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
-            if (!submissions[submissionIndex].scores) {
-                submissions[submissionIndex].scores = {};
-            }
-            
-            submissions[submissionIndex].scores[questionIndex] = parseFloat(scoreValue) || 0;
-            
-            let total = 0;
-            Object.values(submissions[submissionIndex].scores).forEach(s => total += s);
-            submissions[submissionIndex].totalScore = total;
-
-            localStorage.setItem('assessment_submissions', JSON.stringify(submissions));
-            document.getElementById(`total-score-${submissionIndex}`).innerText = `${total} / 25`;
-        }
-
         function renderSubmissions() {
             const container = document.getElementById('submissions-list');
             const submissions = JSON.parse(localStorage.getItem('assessment_submissions') || '[]');
 
             if (submissions.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">لا توجد إجابات مقدمة حتى الآن.</div>`;
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">لا توجد إجابات مقدمة من هذا الجهاز حتى الآن.</div>`;
                 return;
             }
 
             container.innerHTML = submissions.map((sub, sIdx) => `
                 <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-3 shadow-sm">
-                    <div class="flex flex-col md:flex-row justify-between md:items-center border-b pb-2 gap-2">
+                    <div class="flex justify-between items-center border-b pb-2">
                         <div>
                             <span class="font-bold text-slate-900">${sub.studentName}</span>
                             <span class="text-xs text-slate-400 block">${sub.date}</span>
                         </div>
-                        <div class="flex items-center space-x-2 space-x-reverse">
-                            <span class="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1.5 rounded-lg border border-amber-300">
-                                الدرجة: <strong id="total-score-${sIdx}">${sub.totalScore || 0} / 25</strong>
-                            </span>
-                            <button onclick="unlockStudent(${sIdx})" class="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-lg hover:bg-emerald-200" title="إعادة فتح محاولة جديدة لهذا الطالب">
-                                <i class="fa-solid fa-lock-open ml-1"></i> إعادة فتح
-                            </button>
-                            <button onclick="toggleSubmissionDetails(${sIdx})" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100">
-                                تصحيح <i class="fa-solid fa-chevron-down mr-1"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="details-${sIdx}" class="hidden space-y-3 pt-2 text-xs">
-                        ${questionsList.map((q, qIdx) => {
-                            const currentScore = (sub.scores && sub.scores[qIdx] !== undefined) ? sub.scores[qIdx] : 0;
-                            return `
-                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-bold text-indigo-900">س${qIdx + 1}:${q.title}</span>
-                                    <div class="flex items-center space-x-1 space-x-reverse">
-                                        <label class="text-[10px] font-bold text-slate-500">الدرجة:</label>
-                                        <select onchange="updateScore(${sIdx},${qIdx}, this.value)" class="border rounded px-2 py-1 font-bold text-indigo-700">
-                                            <option value="0" ${currentScore === 0 ? 'selected' : ''}>0 (خطأ)</option>
-                                            <option value="1" ${currentScore === 1 ? 'selected' : ''}>1 (صحيح)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <p class="text-slate-800 font-medium bg-white p-2.5 rounded border border-slate-200 leading-relaxed">
-                                    ${sub.answers[qIdx] ? sub.answers[qIdx] : '<span class="text-rose-400 italic">لم يتم إجابة السؤال</span>'}
-                                </p>
-                            </div>
-                        `}).join('')}
                     </div>
                 </div>
             `).join('');
         }
 
-        function toggleSubmissionDetails(idx) {
-            const el = document.getElementById(`details-${idx}`);
-            el.classList.toggle('hidden');
-        }
-
         function closeAdminScreen() {
             document.getElementById('admin-screen').classList.add('hidden');
             document.getElementById('welcome-screen').classList.remove('hidden');
-        }
-
-        function resetApp() {
-            location.reload();
         }
     </script>
 </body>
